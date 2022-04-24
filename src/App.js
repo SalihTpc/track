@@ -46,14 +46,11 @@ function App() {
   const addToPlaylist = (result) => {
     setPlayList([...playList, result]);
     setUrlList([...urlList, result.url]);
-    // console.log(playList);
-    // console.log(urlList);
   };
   const removeTrack = (result) => {
     const newPlaylist = playList.filter((track) => track.url !== result.url);
     const newUrlList = urlList.filter((list) => list !== result.url);
     setUrlList(newUrlList);
-    console.log(urlList);
     setPlayList(newPlaylist);
   };
 
@@ -113,9 +110,6 @@ function App() {
                       {result.artist}
                     </StyledTableCell>
                     <StyledTableCell align="right">
-                      {/* {console.log(playList.includes(result))}
-                      {console.log(playList)} */}
-                      {/* {console.log(urlList.includes(result.url))} */}
                       {urlList.includes(result.url) ? (
                         <Button
                           onClick={() => removeTrack(result)}
