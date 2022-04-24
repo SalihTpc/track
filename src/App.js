@@ -21,6 +21,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
+    maxHeight: 3,
   },
 }));
 
@@ -34,33 +35,27 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
-
 function App() {
   const [searchInput, setSearchInput] = React.useState("link");
-  const [results, setResults] = React.useState([
-    {
-      name: "",
-      artist: "",
-      url: "",
-      streamable: "",
-      listeners: "",
-      image: [],
-      mbid: "",
-    },
-  ]);
+  const [results, setResults] = React.useState([]);
+  const [playList, setPlayList] = React.useState([]);
+  const [urlList, setUrlList] = React.useState([]);
   const APIKEY = "0b323aba795f3ac625e85352f08e65b1";
   const URL = `https://ws.audioscrobbler.com/2.0/?method=track.search&track=${searchInput}&api_key=${APIKEY}&format=json`;
+
+  const addToPlaylist = (result) => {
+    setPlayList([...playList, result]);
+    setUrlList([...urlList, result.url]);
+    // console.log(playList);
+    // console.log(urlList);
+  };
+  const removeTrack = (result) => {
+    const newPlaylist = playList.filter((track) => track.url !== result.url);
+    const newUrlList = urlList.filter((list) => list !== result.url);
+    setUrlList(newUrlList);
+    console.log(urlList);
+    setPlayList(newPlaylist);
+  };
 
   const getTrack = () => {
     axios
@@ -70,10 +65,11 @@ function App() {
   const onChangeHandler = (e) => {
     setSearchInput(e.target.value);
   };
-  console.log(results);
+  // console.log(results);
   React.useEffect(() => {
     getTrack();
   }, [searchInput]);
+
   return (
     <div className="App">
       <form action="">
@@ -107,21 +103,39 @@ function App() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {results.map((result) => (
-                <StyledTableRow key={result.url}>
-                  <StyledTableCell component="th" scope="row">
-                    {result.name}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    {result.artist}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">
-                    <Button variant="outlined" size="medium">
-                      Add
-                    </Button>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
+              {results &&
+                results.map((result) => (
+                  <StyledTableRow key={result.url}>
+                    <StyledTableCell component="th" scope="row">
+                      {result.name}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      {result.artist}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      {/* {console.log(playList.includes(result))}
+                      {console.log(playList)} */}
+                      {/* {console.log(urlList.includes(result.url))} */}
+                      {urlList.includes(result.url) ? (
+                        <Button
+                          onClick={() => removeTrack(result)}
+                          variant="outlined"
+                          size="small"
+                        >
+                          REMOVE
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => addToPlaylist(result)}
+                          variant="outlined"
+                          size="small"
+                        >
+                          Add
+                        </Button>
+                      )}
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -140,21 +154,26 @@ function App() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
-                <StyledTableRow key={row.name}>
-                  <StyledTableCell component="th" scope="row">
-                    {row.name}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">
-                    {row.calories}
-                  </StyledTableCell>
-                  <StyledTableCell align="center">
-                    <Button variant="outlined" size="medium">
-                      Del
-                    </Button>
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))}
+              {playList &&
+                playList.map((row) => (
+                  <StyledTableRow key={row.url}>
+                    <StyledTableCell component="th" scope="row">
+                      {row.name}
+                    </StyledTableCell>
+                    <StyledTableCell align="right">
+                      {row.artist}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      <Button
+                        onClick={() => removeTrack(row)}
+                        variant="outlined"
+                        size="medium"
+                      >
+                        REMOVE
+                      </Button>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
